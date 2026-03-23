@@ -31,9 +31,10 @@ warnings.filterwarnings("ignore")
 @dataclass
 class ForecastConfig:
     """Configuration for DemandForecaster."""
-    seasonal_periods:   int   = 7
-    confidence_width:   float = 1.5
-    min_series_length:  int   = 14
+
+    seasonal_periods: int = 7
+    confidence_width: float = 1.5
+    min_series_length: int = 14
 
 
 class DemandForecaster:
@@ -59,7 +60,7 @@ class DemandForecaster:
 
     def __init__(
         self,
-        seasonal_periods: int   = 7,
+        seasonal_periods: int = 7,
         confidence_width: float = 1.5,
     ):
         self.config = ForecastConfig(
@@ -70,8 +71,8 @@ class DemandForecaster:
     def prepare_daily(
         self,
         df: pd.DataFrame,
-        date_col:    str = "date",
-        station_id:  str | None = None,
+        date_col: str = "date",
+        station_id: str | None = None,
     ) -> pd.Series:
         """
         Aggregate swap events to a daily count series.
@@ -100,8 +101,8 @@ class DemandForecaster:
     def prepare_monthly(
         self,
         df: pd.DataFrame,
-        date_col:   str        = "date",
-        country:    str | None = None,
+        date_col: str = "date",
+        country: str | None = None,
         station_ids: list | None = None,
     ) -> pd.Series:
         """
@@ -127,9 +128,9 @@ class DemandForecaster:
         if station_ids:
             data = data[data["station_id"].isin(station_ids)]
         data[date_col] = pd.to_datetime(data[date_col])
-        data["month"]  = data[date_col].dt.to_period("M")
-        series         = data.groupby("month").size().rename("swaps")
-        series.index   = series.index.to_timestamp()
+        data["month"] = data[date_col].dt.to_period("M")
+        series = data.groupby("month").size().rename("swaps")
+        series.index = series.index.to_timestamp()
         return series
 
     def predict(self, series: pd.Series, periods: int = 30) -> pd.DataFrame:
@@ -148,7 +149,7 @@ class DemandForecaster:
         pd.DataFrame
             Columns: date, forecast, lower, upper.
         """
-        cfg  = self.config
+        cfg = self.config
         freq = pd.infer_freq(series.index) or "D"
 
         try:
@@ -160,13 +161,13 @@ class DemandForecaster:
                 seasonal_periods=cfg.seasonal_periods if use_seasonal else None,
                 initialization_method="estimated",
             )
-            fit      = model.fit(optimized=True)
+            fit = model.fit(optimized=True)
             forecast = fit.forecast(periods)
-            std      = fit.resid.std()
+            std = fit.resid.std()
         except Exception:
             last_val = float(series.iloc[-7:].mean()) if len(series) >= 7 else float(series.mean())
             forecast = pd.Series([last_val] * periods)
-            std      = last_val * 0.1
+            std = last_val * 0.1
 
         step = pd.tseries.frequencies.to_offset(freq)
         future_idx = pd.date_range(
@@ -175,12 +176,14 @@ class DemandForecaster:
             freq=freq,
         )
 
-        return pd.DataFrame({
-            "date":     future_idx,
-            "forecast": forecast.values.clip(0),
-            "lower":    (forecast.values - cfg.confidence_width * std).clip(0),
-            "upper":    (forecast.values + cfg.confidence_width * std).clip(0),
-        })
+        return pd.DataFrame(
+            {
+                "date": future_idx,
+                "forecast": forecast.values.clip(0),
+                "lower": (forecast.values - cfg.confidence_width * std).clip(0),
+                "upper": (forecast.values + cfg.confidence_width * std).clip(0),
+            }
+        )
 
     def peak_hours(self, df: pd.DataFrame, timestamp_col: str = "timestamp") -> pd.DataFrame:
         """
@@ -219,11 +222,11 @@ class DemandForecaster:
         """
         peak_idx = forecast_df["forecast"].idxmax()
         return {
-            "periods":        len(forecast_df),
-            "avg_forecast":   round(float(forecast_df["forecast"].mean()), 1),
-            "peak_forecast":  round(float(forecast_df["forecast"].max()), 1),
+            "periods": len(forecast_df),
+            "avg_forecast": round(float(forecast_df["forecast"].mean()), 1),
+            "peak_forecast": round(float(forecast_df["forecast"].max()), 1),
             "total_forecast": round(float(forecast_df["forecast"].sum()), 0),
-            "peak_date":      str(forecast_df.loc[peak_idx, "date"].date()),
+            "peak_date": str(forecast_df.loc[peak_idx, "date"].date()),
         }
 
     def __repr__(self) -> str:

@@ -37,28 +37,29 @@ DEFAULT_FEATURES = [
 ]
 
 SEGMENT_MAP = {
-    "commuter":  0,
-    "delivery":  1,
+    "commuter": 0,
+    "delivery": 1,
     "logistics": 2,
-    "casual":    3,
+    "casual": 3,
 }
 
-RISK_BINS   = [0, 0.30, 0.60, 1.01]
+RISK_BINS = [0, 0.30, 0.60, 1.01]
 RISK_LABELS = ["Low", "Medium", "High"]
 
 
 @dataclass
 class ChurnScorerConfig:
     """Hyperparameters and feature configuration for ChurnScorer."""
-    n_estimators:   int   = 200
-    max_depth:      int   = 4
-    learning_rate:  float = 0.05
-    random_state:   int   = 42
-    test_size:      float = 0.20
-    features:       list  = field(default_factory=lambda: DEFAULT_FEATURES.copy())
-    segment_column: str   = "segment"
-    target_column:  str   = "churned"
-    verbose:        bool  = False
+
+    n_estimators: int = 200
+    max_depth: int = 4
+    learning_rate: float = 0.05
+    random_state: int = 42
+    test_size: float = 0.20
+    features: list = field(default_factory=lambda: DEFAULT_FEATURES.copy())
+    segment_column: str = "segment"
+    target_column: str = "churned"
+    verbose: bool = False
 
 
 class ChurnScorer:
@@ -86,10 +87,10 @@ class ChurnScorer:
     """
 
     def __init__(self, config: ChurnScorerConfig | None = None):
-        self.config    = config or ChurnScorerConfig()
-        self.model_    = None
+        self.config = config or ChurnScorerConfig()
+        self.model_ = None
         self.feature_cols_ = None
-        self.auc_      = None
+        self.auc_ = None
         self.is_fitted_ = False
 
     def fit(self, df: pd.DataFrame) -> "ChurnScorer":
@@ -127,7 +128,8 @@ class ChurnScorer:
         y = df[self.config.target_column]
 
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y,
+            X,
+            y,
             test_size=self.config.test_size,
             random_state=self.config.random_state,
             stratify=y,
@@ -179,7 +181,7 @@ class ChurnScorer:
 
         X = df[[c for c in self.feature_cols_ if c in df.columns]].fillna(0)
         df["churn_score"] = self.model_.predict_proba(X)[:, 1]
-        df["churn_risk"]  = pd.cut(
+        df["churn_risk"] = pd.cut(
             df["churn_score"],
             bins=RISK_BINS,
             labels=RISK_LABELS,
@@ -224,10 +226,12 @@ class ChurnScorer:
         """
         self._check_fitted()
         return (
-            pd.DataFrame({
-                "feature":    self.feature_cols_,
-                "importance": self.model_.feature_importances_,
-            })
+            pd.DataFrame(
+                {
+                    "feature": self.feature_cols_,
+                    "importance": self.model_.feature_importances_,
+                }
+            )
             .sort_values("importance", ascending=False)
             .reset_index(drop=True)
         )
@@ -236,10 +240,10 @@ class ChurnScorer:
         """Return a summary dict of model metadata."""
         self._check_fitted()
         return {
-            "auc":            round(self.auc_, 4),
-            "n_estimators":   self.config.n_estimators,
-            "features":       self.feature_cols_,
-            "top_feature":    self.feature_importances().iloc[0]["feature"],
+            "auc": round(self.auc_, 4),
+            "n_estimators": self.config.n_estimators,
+            "features": self.feature_cols_,
+            "top_feature": self.feature_importances().iloc[0]["feature"],
         }
 
     def _validate_columns(self, df: pd.DataFrame) -> None:
@@ -256,9 +260,7 @@ class ChurnScorer:
 
     def _check_fitted(self) -> None:
         if not self.is_fitted_:
-            raise RuntimeError(
-                "ChurnScorer is not fitted. Call scorer.fit(df) before scoring."
-            )
+            raise RuntimeError("ChurnScorer is not fitted. Call scorer.fit(df) before scoring.")
 
     def __repr__(self) -> str:
         status = f"fitted (AUC={self.auc_:.3f})" if self.is_fitted_ else "not fitted"

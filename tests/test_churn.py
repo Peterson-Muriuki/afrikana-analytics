@@ -1,4 +1,5 @@
 """tests/test_churn.py"""
+
 import pytest
 import pandas as pd
 from afrikana.churn import ChurnScorer, ChurnScorerConfig
@@ -27,7 +28,7 @@ def test_score_adds_columns(customers_df):
     scorer = ChurnScorer().fit(customers_df)
     result = scorer.score(customers_df)
     assert "churn_score" in result.columns
-    assert "churn_risk"  in result.columns
+    assert "churn_risk" in result.columns
 
 
 def test_churn_score_in_range(customers_df):
@@ -39,26 +40,26 @@ def test_churn_score_in_range(customers_df):
 def test_churn_risk_labels(customers_df):
     scorer = ChurnScorer().fit(customers_df)
     result = scorer.score(customers_df)
-    valid  = {"Low", "Medium", "High"}
+    valid = {"Low", "Medium", "High"}
     assert set(result["churn_risk"].dropna().unique()).issubset(valid)
 
 
 def test_at_risk_threshold(customers_df):
-    scorer   = ChurnScorer().fit(customers_df)
-    at_risk  = scorer.at_risk(customers_df, threshold=0.5)
+    scorer = ChurnScorer().fit(customers_df)
+    at_risk = scorer.at_risk(customers_df, threshold=0.5)
     assert (at_risk["churn_score"] >= 0.5).all()
 
 
 def test_at_risk_sorted_descending(customers_df):
-    scorer  = ChurnScorer().fit(customers_df)
+    scorer = ChurnScorer().fit(customers_df)
     at_risk = scorer.at_risk(customers_df)
-    scores  = at_risk["churn_score"].tolist()
+    scores = at_risk["churn_score"].tolist()
     assert scores == sorted(scores, reverse=True)
 
 
 def test_feature_importances_shape(customers_df):
     scorer = ChurnScorer().fit(customers_df)
-    imp    = scorer.feature_importances()
+    imp = scorer.feature_importances()
     assert "feature" in imp.columns
     assert "importance" in imp.columns
     assert len(imp) == len(scorer.feature_cols_)
@@ -66,7 +67,7 @@ def test_feature_importances_shape(customers_df):
 
 def test_feature_importances_sum_to_one(customers_df):
     scorer = ChurnScorer().fit(customers_df)
-    imp    = scorer.feature_importances()
+    imp = scorer.feature_importances()
     assert abs(imp["importance"].sum() - 1.0) < 1e-6
 
 

@@ -26,12 +26,13 @@ from dataclasses import dataclass
 @dataclass
 class LTVConfig:
     """Configuration for LTV calculation."""
-    gross_margin:          float = 0.62
-    discount_rate_annual:  float = 0.12
-    max_horizon_months:    int   = 36
-    churn_col:             str   = "churn_probability"
-    revenue_col:           str   = "monthly_revenue"
-    tenure_col:            str   = "tenure_months"
+
+    gross_margin: float = 0.62
+    discount_rate_annual: float = 0.12
+    max_horizon_months: int = 36
+    churn_col: str = "churn_probability"
+    revenue_col: str = "monthly_revenue"
+    tenure_col: str = "tenure_months"
 
 
 class LTVCalculator:
@@ -59,9 +60,9 @@ class LTVCalculator:
 
     def __init__(
         self,
-        gross_margin:         float = 0.62,
+        gross_margin: float = 0.62,
         discount_rate_annual: float = 0.12,
-        max_horizon_months:   int   = 36,
+        max_horizon_months: int = 36,
     ):
         self.config = LTVConfig(
             gross_margin=gross_margin,
@@ -89,21 +90,21 @@ class LTVCalculator:
             - ltv_tier           : "Bronze", "Silver", or "Gold"
         """
         cfg = self.config
-        df  = df.copy()
+        df = df.copy()
 
-        churn_col   = cfg.churn_col if cfg.churn_col in df.columns else "churn_score"
+        churn_col = cfg.churn_col if cfg.churn_col in df.columns else "churn_score"
         revenue_col = cfg.revenue_col
-        tenure_col  = cfg.tenure_col
+        tenure_col = cfg.tenure_col
 
         if churn_col not in df.columns:
             df[churn_col] = 0.15
 
         r_monthly = (1 + cfg.discount_rate_annual) ** (1 / 12) - 1
 
-        df["monthly_survival"]  = 1 - df[churn_col].clip(0.01, 0.99)
-        df["expected_lifetime"] = (
-            df["monthly_survival"] / (1 - df["monthly_survival"])
-        ).clip(1, cfg.max_horizon_months)
+        df["monthly_survival"] = 1 - df[churn_col].clip(0.01, 0.99)
+        df["expected_lifetime"] = (df["monthly_survival"] / (1 - df["monthly_survival"])).clip(
+            1, cfg.max_horizon_months
+        )
 
         tenure = df[tenure_col].clip(0, cfg.max_horizon_months) if tenure_col in df.columns else 0
 
@@ -114,7 +115,7 @@ class LTVCalculator:
             * (1 / (1 + r_monthly)) ** tenure
         ).round(2)
 
-        ltv_q      = df["ltv"].quantile([0.33, 0.66])
+        ltv_q = df["ltv"].quantile([0.33, 0.66])
         df["ltv_tier"] = pd.cut(
             df["ltv"],
             bins=[-np.inf, ltv_q[0.33], ltv_q[0.66], np.inf],
@@ -140,10 +141,10 @@ class LTVCalculator:
         return (
             df.groupby("ltv_tier", observed=False)
             .agg(
-                count       = ("ltv", "count"),
-                avg_ltv     = ("ltv", "mean"),
-                total_ltv   = ("ltv", "sum"),
-                avg_revenue = (self.config.revenue_col, "mean"),
+                count=("ltv", "count"),
+                avg_ltv=("ltv", "mean"),
+                total_ltv=("ltv", "sum"),
+                avg_revenue=(self.config.revenue_col, "mean"),
             )
             .round(2)
             .reset_index()
@@ -156,9 +157,9 @@ class LTVCalculator:
         return (
             df.groupby(group_col)
             .agg(
-                count     = ("ltv", "count"),
-                avg_ltv   = ("ltv", "mean"),
-                total_ltv = ("ltv", "sum"),
+                count=("ltv", "count"),
+                avg_ltv=("ltv", "mean"),
+                total_ltv=("ltv", "sum"),
             )
             .round(2)
             .reset_index()
@@ -190,14 +191,14 @@ class LTVCalculator:
             Keys: n_at_risk, monthly_revenue_at_risk, ltv_at_risk, pct_of_total_ltv.
         """
         churn_col = "churn_score" if "churn_score" in df.columns else "churn_probability"
-        at_risk   = df[df[churn_col] >= churn_threshold]
+        at_risk = df[df[churn_col] >= churn_threshold]
         return {
-            "n_at_risk":              len(at_risk),
+            "n_at_risk": len(at_risk),
             "monthly_revenue_at_risk": round(float(at_risk[self.config.revenue_col].sum()), 2),
-            "ltv_at_risk":             round(float(at_risk["ltv"].sum()), 2),
-            "pct_of_total_ltv":        round(
-                float(at_risk["ltv"].sum() / df["ltv"].sum() * 100), 1
-            ) if df["ltv"].sum() > 0 else 0.0,
+            "ltv_at_risk": round(float(at_risk["ltv"].sum()), 2),
+            "pct_of_total_ltv": round(float(at_risk["ltv"].sum() / df["ltv"].sum() * 100), 1)
+            if df["ltv"].sum() > 0
+            else 0.0,
         }
 
     def __repr__(self) -> str:
