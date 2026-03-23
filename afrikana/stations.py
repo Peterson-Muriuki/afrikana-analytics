@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from scipy.spatial.distance import cdist
 
 

@@ -24,7 +24,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import warnings
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 warnings.filterwarnings("ignore")
 

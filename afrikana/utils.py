@@ -6,7 +6,6 @@ Shared utility functions used across the afrikana-analytics package.
 
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 
 
