@@ -1,6 +1,6 @@
 """tests/test_financial.py"""
+
 import pytest
-import pandas as pd
 from afrikana.financial import FinancialModel
 
 

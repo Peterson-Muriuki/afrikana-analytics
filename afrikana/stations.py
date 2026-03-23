@@ -31,11 +31,12 @@ from scipy.spatial.distance import cdist
 @dataclass
 class OptimizerConfig:
     """Weights for the multi-criteria scoring model. Must sum to 1.0."""
-    weight_demand_density:    float = 0.30
-    weight_coverage_gap:      float = 0.25
+
+    weight_demand_density: float = 0.30
+    weight_coverage_gap: float = 0.25
     weight_revenue_potential: float = 0.25
-    weight_underserved:       float = 0.20
-    coverage_radius_km:       float = 2.0
+    weight_underserved: float = 0.20
+    coverage_radius_km: float = 2.0
 
     def __post_init__(self):
         total = (
@@ -100,16 +101,18 @@ class StationOptimizer:
         pd.DataFrame
             Columns: candidate_id, lat, lon, pop_density, commuter_index, income_index.
         """
-        rng  = np.random.default_rng(random_seed)
+        rng = np.random.default_rng(random_seed)
         lat0, lon0 = center
-        return pd.DataFrame({
-            "candidate_id":   [f"CND{i+1:03d}" for i in range(n)],
-            "lat":            lat0 + rng.uniform(-spread, spread, n),
-            "lon":            lon0 + rng.uniform(-spread, spread, n),
-            "pop_density":    rng.uniform(500, 8000, n),
-            "commuter_index": rng.uniform(0.2, 1.0, n),
-            "income_index":   rng.uniform(0.3, 0.9, n),
-        })
+        return pd.DataFrame(
+            {
+                "candidate_id": [f"CND{i + 1:03d}" for i in range(n)],
+                "lat": lat0 + rng.uniform(-spread, spread, n),
+                "lon": lon0 + rng.uniform(-spread, spread, n),
+                "pop_density": rng.uniform(500, 8000, n),
+                "commuter_index": rng.uniform(0.2, 1.0, n),
+                "income_index": rng.uniform(0.3, 0.9, n),
+            }
+        )
 
     def score(
         self,
@@ -135,16 +138,19 @@ class StationOptimizer:
             - deployment_score   : weighted composite score [0, 100]
             - priority           : "High", "Medium", or "Low"
         """
-        df     = candidates.copy()
-        active = existing_stations[existing_stations.get("status", "active") == "active"][["lat", "lon"]].values
+        df = candidates.copy()
+        active = existing_stations[existing_stations.get("status", "active") == "active"][
+            ["lat", "lon"]
+        ].values
 
         if len(active) > 0:
             grid = df[["lat", "lon"]].values
             dists = cdist(
-                np.radians(grid), np.radians(active),
-                metric=lambda u, v: 6371 * np.sqrt(
-                    (u[0] - v[0]) ** 2
-                    + ((u[1] - v[1]) * np.cos((u[0] + v[0]) / 2)) ** 2
+                np.radians(grid),
+                np.radians(active),
+                metric=lambda u, v: (
+                    6371
+                    * np.sqrt((u[0] - v[0]) ** 2 + ((u[1] - v[1]) * np.cos((u[0] + v[0]) / 2)) ** 2)
                 ),
             )
             df["nearest_station_km"] = dists.min(axis=1)
@@ -156,20 +162,20 @@ class StationOptimizer:
             return (s - s.min()) / r if r > 0 else s * 0 + 0.5
 
         cfg = self.config
-        df["demand_density"]    = norm(df["pop_density"] * df["commuter_index"])
-        df["coverage_gap"]      = norm(df["nearest_station_km"])
+        df["demand_density"] = norm(df["pop_density"] * df["commuter_index"])
+        df["coverage_gap"] = norm(df["nearest_station_km"])
         df["revenue_potential"] = norm(df["income_index"] * df["pop_density"])
         df["underserved_score"] = norm(df["nearest_station_km"] / (df["pop_density"] + 1) * 1000)
 
         df["deployment_score"] = (
-            cfg.weight_demand_density    * df["demand_density"]
-            + cfg.weight_coverage_gap   * df["coverage_gap"]
+            cfg.weight_demand_density * df["demand_density"]
+            + cfg.weight_coverage_gap * df["coverage_gap"]
             + cfg.weight_revenue_potential * df["revenue_potential"]
-            + cfg.weight_underserved    * df["underserved_score"]
+            + cfg.weight_underserved * df["underserved_score"]
         ) * 100
 
         df["deployment_score"] = df["deployment_score"].round(1)
-        df["priority"]         = pd.cut(
+        df["priority"] = pd.cut(
             df["deployment_score"],
             bins=[0, 40, 65, 101],
             labels=["Low", "Medium", "High"],
@@ -192,10 +198,20 @@ class StationOptimizer:
         pd.DataFrame
             Top N rows with key scoring columns.
         """
-        cols = [c for c in
-                ["candidate_id", "lat", "lon", "deployment_score", "priority",
-                 "nearest_station_km", "demand_density", "coverage_gap"]
-                if c in scored.columns]
+        cols = [
+            c
+            for c in [
+                "candidate_id",
+                "lat",
+                "lon",
+                "deployment_score",
+                "priority",
+                "nearest_station_km",
+                "demand_density",
+                "coverage_gap",
+            ]
+            if c in scored.columns
+        ]
         return scored[cols].head(top_n).reset_index(drop=True)
 
     def coverage_stats(self, scored: pd.DataFrame) -> dict:
@@ -209,12 +225,12 @@ class StationOptimizer:
             avg_coverage_gap_km, avg_score.
         """
         return {
-            "total_candidates":  len(scored),
-            "high_priority":     int((scored["priority"] == "High").sum()),
-            "medium_priority":   int((scored["priority"] == "Medium").sum()),
-            "low_priority":      int((scored["priority"] == "Low").sum()),
+            "total_candidates": len(scored),
+            "high_priority": int((scored["priority"] == "High").sum()),
+            "medium_priority": int((scored["priority"] == "Medium").sum()),
+            "low_priority": int((scored["priority"] == "Low").sum()),
             "avg_coverage_gap_km": round(float(scored["nearest_station_km"].mean()), 2),
-            "avg_score":         round(float(scored["deployment_score"].mean()), 1),
+            "avg_score": round(float(scored["deployment_score"].mean()), 1),
         }
 
     def __repr__(self) -> str:

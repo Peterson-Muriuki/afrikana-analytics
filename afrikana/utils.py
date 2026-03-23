@@ -38,9 +38,9 @@ def format_currency(value: float, symbol: str = "$") -> str:
 
 
 def country_kpi_summary(
-    stations:  pd.DataFrame,
+    stations: pd.DataFrame,
     customers: pd.DataFrame,
-    revenue:   pd.DataFrame,
+    revenue: pd.DataFrame,
 ) -> pd.DataFrame:
     """
     Build a one-row-per-country KPI summary table.
@@ -62,25 +62,35 @@ def country_kpi_summary(
     """
     rows = []
     for country in stations["country"].unique():
-        s   = stations[stations["country"] == country]
-        c   = customers[customers["country"] == country]
-        r   = revenue[revenue["country"] == country]
+        s = stations[stations["country"] == country]
+        c = customers[customers["country"] == country]
+        r = revenue[revenue["country"] == country]
         rev = r[r["month"] == r["month"].max()]["revenue_usd"].sum() if len(r) > 0 else 0
-        rows.append({
-            "country":          country,
-            "active_stations":  int((s["status"] == "active").sum()),
-            "total_stations":   len(s),
-            "customers":        len(c),
-            "latest_monthly_rev": round(float(rev), 0),
-        })
+        rows.append(
+            {
+                "country": country,
+                "active_stations": int((s["status"] == "active").sum()),
+                "total_stations": len(s),
+                "customers": len(c),
+                "latest_monthly_rev": round(float(rev), 0),
+            }
+        )
     return pd.DataFrame(rows).sort_values("latest_monthly_rev", ascending=False)
 
 
 AFRICAN_EV_MARKETS = {
-    "Kenya":   {"cities": ["Nairobi", "Mombasa", "Kisumu", "Nakuru"], "currency": "KES", "fx_to_usd": 0.0077},
-    "Nigeria": {"cities": ["Lagos", "Abuja", "Kano", "Port Harcourt"], "currency": "NGN", "fx_to_usd": 0.00063},
-    "Rwanda":  {"cities": ["Kigali", "Butare", "Gisenyi"],              "currency": "RWF", "fx_to_usd": 0.00071},
-    "Uganda":  {"cities": ["Kampala", "Entebbe", "Jinja"],              "currency": "UGX", "fx_to_usd": 0.00027},
-    "Ghana":   {"cities": ["Accra", "Kumasi", "Tamale"],                "currency": "GHS", "fx_to_usd": 0.066},
-    "Ethiopia":{"cities": ["Addis Ababa", "Dire Dawa"],                 "currency": "ETB", "fx_to_usd": 0.0088},
+    "Kenya": {
+        "cities": ["Nairobi", "Mombasa", "Kisumu", "Nakuru"],
+        "currency": "KES",
+        "fx_to_usd": 0.0077,
+    },
+    "Nigeria": {
+        "cities": ["Lagos", "Abuja", "Kano", "Port Harcourt"],
+        "currency": "NGN",
+        "fx_to_usd": 0.00063,
+    },
+    "Rwanda": {"cities": ["Kigali", "Butare", "Gisenyi"], "currency": "RWF", "fx_to_usd": 0.00071},
+    "Uganda": {"cities": ["Kampala", "Entebbe", "Jinja"], "currency": "UGX", "fx_to_usd": 0.00027},
+    "Ghana": {"cities": ["Accra", "Kumasi", "Tamale"], "currency": "GHS", "fx_to_usd": 0.066},
+    "Ethiopia": {"cities": ["Addis Ababa", "Dire Dawa"], "currency": "ETB", "fx_to_usd": 0.0088},
 }
