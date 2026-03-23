@@ -211,7 +211,7 @@ Built for and tested against data patterns from:
 
 **Peterson Mutegi** — Data Analyst · AI Engineer · Financial Engineer  
 Nairobi, Kenya · [pitmuriuki@gmail.com](mailto:pitmuriuki@gmail.com)  
-[GitHub](https://github.com/Peterson-Muriuki) · [LinkedIn]https://www.linkedin.com/in/peterson-muriuki-5857aaa9/)
+[GitHub](https://github.com/Peterson-Muriuki) · [[LinkedIn](https://www.linkedin.com/in/peterson-muriuki-5857aaa9/)
 
 Built on top of real analytical work for African EV mobility operations.
 
