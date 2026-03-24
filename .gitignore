@@ -8,3 +8,6 @@ venv/
 env/
 ENV/
 htmlcov/
+dist/ 
+*.egg-info/ 
+create_pypirc.py 
