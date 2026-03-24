@@ -3,7 +3,7 @@
 [![CI](https://github.com/Peterson-Muriuki/afrikana-analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/Peterson-Muriuki/afrikana-analytics/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![GitHub Packages](https://img.shields.io/badge/GitHub-Packages-181717?logo=github)](https://github.com/Peterson-Muriuki/afrikana-analytics/packages)
+[![Downloads](https://img.shields.io/pypi/dm/afrikana-analytics)](https://pypi.org/project/afrikana-analytics/)
 
 **Reusable analytics toolkit for African mobility, fintech, and EV swap station networks.**
 
