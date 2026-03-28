@@ -5,9 +5,12 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Downloads](https://img.shields.io/pypi/dm/afrikana-analytics)](https://pypi.org/project/afrikana-analytics/)
 
-**Reusable analytics toolkit for African mobility, fintech, and EV swap station networks.**
+**Production-ready analytics toolkit for any operator managing customers, infrastructure, and growth decisions at scale**
 
-Built from real analytical work on EV battery swap operations across Kenya, Nigeria, Rwanda, and Uganda. Covers the full data-to-decision stack: churn prediction, lifetime value, financial modelling, station deployment optimisation, and demand forecasting.
+Built from real analytical work across African markets. 
+Applicable to any subscription, usage-based, or network-deployment business — mobility, fintech, telecoms, utilities, logistics, or SaaS.
+
+Covers the full data-to-decision stack: churn prediction, customer lifetime value, financial modelling, site deployment optimisation, and demand forecasting.
 
 ---
 
