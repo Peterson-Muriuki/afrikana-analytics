@@ -118,7 +118,7 @@ calc.revenue_at_risk(df, threshold=0.5)
 ---
 
 ### `FinancialModel`
-Full financial model for an EV swap station network.
+Full financial modelling.
 
 ```python
 from afrikana.financial import FinancialModel
@@ -143,7 +143,6 @@ model.monte_carlo(2000)  # P10/P50/P90 NPV distribution, VaR 95%, prob +ve NPV
 ---
 
 ### `StationOptimizer`
-Multi-criteria deployment scorer for new swap station locations.
 
 ```python
 from afrikana.stations import StationOptimizer, OptimizerConfig
@@ -221,7 +220,7 @@ Built for and tested against data patterns from:
 Nairobi, Kenya · [pitmuriuki@gmail.com](mailto:pitmuriuki@gmail.com)  
 [GitHub](https://github.com/Peterson-Muriuki) · [[LinkedIn](https://www.linkedin.com/in/peterson-muriuki-5857aaa9/)
 
-Built on top of real analytical work for African EV mobility operations.
+Built on top of real analytical work for African Marrkets.
 
 ---
 
