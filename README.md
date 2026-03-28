@@ -8,7 +8,6 @@
 [![](https://static.pepy.tech/badge/afrikana-analytics)](https://pepy.tech/project/afrikana-analytics)
 ![Downloads](https://img.shields.io/pypi/dm/afrikana-analytics)
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
-![Focus](https://img.shields.io/badge/Focus-African%20Fintech%20%26%20Mobility-blue)
 ![Maintained](https://img.shields.io/badge/Maintained-Yes-brightgreen)
 
 **Production-ready analytics toolkit for any operator managing customers, infrastructure, and growth decisions at scale.**
